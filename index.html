@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Progress Report - RillCod Technologies</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --navy-blue: #000080;
+            --maroon: #800000;
+            --light-maroon: #ffebee;
+            --light-navy: #e8eaf6;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .page {
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            background: white;
+            padding: 10mm 15mm 5mm 15mm; /* Adjusted top and bottom padding */
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 3mm; /* Reduced margin */
+            padding-bottom: 2mm;
+            border-bottom: 1.5px solid var(--maroon);
+        }
+        .header-content {
+            text-align: center;
+        }
+        .logo {
+            height: 20mm; /* Slightly smaller logo */
+            width: auto;
+            margin-bottom: 1mm;
+        }
+        .company-name {
+            font-size: 16pt; /* Slightly smaller font */
+            font-weight: bold;
+            color: var(--navy-blue);
+            margin: 0;
+            line-height: 1.2;
+        }
+        .tagline {
+            font-style: italic;
+            color: var(--maroon);
+            margin: 1mm 0 0;
+            font-size: 9pt; /* Smaller font */
+        }
+        .contact-info {
+            font-size: 7pt; /* Smaller font */
+            color: var(--navy-blue);
+            margin-top: 1mm;
+        }
+        .report-title {
+            text-align: center;
+            font-size: 14pt; /* Slightly smaller */
+            font-weight: bold;
+            margin: 2mm 0 3mm; /* Reduced margins */
+            color: var(--maroon);
+        }
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2mm; /* Reduced gap */
+            margin-bottom: 3mm; /* Reduced margin */
+            background-color: var(--light-navy);
+            padding: 2mm;
+            border-radius: 2mm;
+            font-size: 9pt; /* Smaller font */
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3mm; /* Reduced gap */
+            margin-top: 2mm; /* Reduced margin */
+        }
+        .section {
+            margin-bottom: 3mm; /* Reduced margin */
+        }
+        .section-title {
+            font-size: 11pt; /* Slightly smaller */
+            font-weight: bold;
+            color: var(--navy-blue);
+            margin: 0 0 2mm; /* Reduced margin */
+            padding-bottom: 1mm;
+            border-bottom: 1px solid var(--maroon);
+        }
+        .progress-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 1mm 0; /* Reduced margin */
+            font-size: 9pt;
+        }
+        .progress-list li {
+            margin-bottom: 1mm; /* Reduced margin */
+            position: relative;
+            padding-left: 3mm;
+        }
+        .progress-list li:before {
+            content: "•";
+            color: var(--maroon);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        .assessment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1mm 0; /* Reduced margin */
+            font-size: 9pt;
+        }
+        .assessment-table th, .assessment-table td {
+            border: 1px solid #ddd;
+            padding: 1mm; /* Reduced padding */
+            text-align: left;
+        }
+        .assessment-table th {
+            background-color: var(--navy-blue);
+            color: white;
+            font-size: 9pt;
+        }
+        .comments {
+            background-color: var(--light-maroon);
+            padding: 2mm; /* Reduced padding */
+            border-radius: 2mm;
+            font-size: 9pt;
+            margin: 1mm 0; /* Reduced margin */
+        }
+        .chart-container {
+            height: 60mm; /* Reduced height */
+            margin: 2mm 0; /* Reduced margin */
+            position: relative;
+        }
+        .certificate {
+            text-align: center;
+            margin-top: 3mm; /* Reduced margin */
+            padding: 2mm; /* Reduced padding */
+            border: 1px solid var(--maroon);
+            border-radius: 2mm;
+            font-size: 9pt;
+        }
+        .signature {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5mm; /* Reduced margin */
+        }
+        .signature-line {
+            border-top: 1px solid var(--navy-blue);
+            width: 50mm; /* Narrower lines */
+            margin-top: 10mm; /* Reduced margin */
+        }
+        .form-container {
+            background-color: white;
+            padding: 5mm;
+            border-radius: 2mm;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            margin: 5mm auto;
+            max-width: 200mm;
+        }
+        .form-group {
+            margin-bottom: 3mm;
+        }
+        label {
+            display: block;
+            margin-bottom: 1mm;
+            font-weight: bold;
+            color: var(--navy-blue);
+            font-size: 10pt;
+        }
+        input, select {
+            width: 100%;
+            padding: 2mm;
+            border: 1px solid #ddd;
+            border-radius: 1mm;
+            box-sizing: border-box;
+            font-size: 10pt;
+        }
+        .submit-btn {
+            background-color: var(--maroon);
+            color: white;
+            border: none;
+            padding: 3mm 5mm;
+            border-radius: 1mm;
+            cursor: pointer;
+            font-size: 10pt;
+            width: 100%;
+            margin-top: 3mm;
+        }
+        footer {
+            text-align: center;
+            font-size: 7pt; /* Smaller font */
+            color: var(--navy-blue);
+            margin-top: 3mm; /* Reduced margin */
+            position: absolute;
+            bottom: 2mm; /* Adjusted position */
+            left: 0;
+            right: 0;
+            padding: 0 15mm;
+        }
+        strong {
+            color: var(--navy-blue);
+        }
+        .total-performance {
+            background-color: var(--light-navy);
+            padding: 2mm; /* Reduced padding */
+            border-radius: 2mm;
+            margin-top: 2mm; /* Reduced margin */
+            font-size: 9pt;
+        }
+        .performance-grade {
+            font-size: 12pt; /* Slightly smaller */
+            font-weight: bold;
+            color: var(--maroon);
+            text-align: center;
+            margin-top: 1mm; /* Reduced margin */
+        }
+        .payment-info {
+            margin-top: 2mm; /* Reduced margin */
+            font-size: 9pt;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form id="scoreForm">
+            <div class="form-group">
+                <label for="studentName">Student Name:</label>
+                <input type="text" id="studentName" name="studentName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="theoryScore">Theory Test Score (0-100):</label>
+                <input type="number" id="theoryScore" name="theoryScore" min="0" max="100" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="practicalScore">Practical Test Score (0-100):</label>
+                <input type="number" id="practicalScore" name="practicalScore" min="0" max="100" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="attendance">Attendance Percentage (0-100):</label>
+                <input type="number" id="attendance" name="attendance" min="0" max="100" value="100" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="participation">Class Participation:</label>
+                <select id="participation" name="participation" required>
+                    <option value="">Select an option</option>
+                    <option value="Excellent">Excellent</option>
+                    <option value="Very Good">Very Good</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                    <option value="Needs Improvement">Needs Improvement</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="strengths">Strengths:</label>
+                <select id="strengths" name="strengths" required>
+                    <option value="">Select strengths</option>
+                    <option value="Excellent problem-solving skills">Excellent problem-solving skills</option>
+                    <option value="Quick grasp of programming concepts">Quick grasp of programming concepts</option>
+                    <option value="Strong logical thinking abilities">Strong logical thinking abilities</option>
+                    <option value="Excellent attention to detail">Excellent attention to detail</option>
+                    <option value="Creative approach to coding challenges">Creative approach to coding challenges</option>
+                    <option value="Good collaborative skills">Good collaborative skills</option>
+                    <option value="Persistent in debugging code">Persistent in debugging code</option>
+                    <option value="Excellent code organization">Excellent code organization</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="growth">Areas for Growth:</label>
+                <select id="growth" name="growth" required>
+                    <option value="">Select areas for improvement</option>
+                    <option value="Could benefit from more practice with syntax">Could benefit from more practice with syntax</option>
+                    <option value="Needs to work on code commenting">Needs to work on code commenting</option>
+                    <option value="Should focus on variable naming conventions">Should focus on variable naming conventions</option>
+                    <option value="Would benefit from more pseudocode planning">Would benefit from more pseudocode planning</option>
+                    <option value="Needs to improve error handling">Needs to improve error handling</option>
+                    <option value="Could work on program efficiency">Could work on program efficiency</option>
+                    <option value="Should practice more independent problem-solving">Should practice more independent problem-solving</option>
+                    <option value="Needs to work on time management">Needs to work on time management</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="comments">Overall Comments:</label>
+                <select id="comments" name="comments" required>
+                    <option value="">Select overall comment</option>
+                    <option value="[Student] has shown remarkable progress in understanding Python fundamentals. With continued practice, [they] will master more advanced concepts quickly.">[Student] has shown remarkable progress...</option>
+                    <option value="[Student] demonstrates good understanding of core concepts. Focusing on [their] areas for growth will help [them] become a more well-rounded programmer.">[Student] demonstrates good understanding...</option>
+                    <option value="[Student] is developing solid programming skills. I encourage [them] to practice daily to reinforce the concepts we've covered.">[Student] is developing solid programming skills...</option>
+                    <option value="[Student] shows potential in programming. With more attention to detail and regular practice, [they] will see significant improvement.">[Student] shows potential in programming...</option>
+                    <option value="[Student] has made steady progress this term. I recommend targeted practice in [their] weaker areas to build confidence.">[Student] has made steady progress...</option>
+                    <option value="[Student] is beginning to apply concepts effectively. Continued exposure to different problem types will help [them] grow.">[Student] is beginning to apply concepts...</option>
+                    <option value="[Student] participates well in class. Focusing on [their] areas for improvement will help [them] excel in upcoming modules.">[Student] participates well in class...</option>
+                    <option value="[Student] has a good foundation. I encourage [them] to challenge [themselves] with additional practice problems between sessions.">[Student] has a good foundation...</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="submit-btn">Generate PDF Report</button>
+        </form>
+    </div>
+    <div id="reportContent" class="page">
+        <div class="header">
+            <div class="header-content">
+                <img src="https://res.cloudinary.com/dpigtwit0/image/upload/c_thumb,w_200,g_face/v1744353437/Logo_03_PNG_y3jntf.png" alt="RillCod Logo" class="logo">
+                <div class="company-name">RILLCOD TECHNOLOGIES</div>
+                <div class="tagline">Coding Today, Innovating Tomorrow</div>
+                <div class="contact-info">
+                    📍 26 Ogiesoba Avenue, Off Airport Road, GRA, Benin City • 📞 08116600091 • ✉ rillcod@gmail.com • 🌐 www.rillcod.com
+                </div>
+            </div>
+        </div>
+
+        <div class="report-title">STUDENT PROGRESS REPORT</div>
+        
+        <div class="student-info">
+            <div><strong>Student Name:</strong> <span id="reportStudentName">[Full Name]</span></div>
+            <div><strong>Course:</strong> Python Programming Fundamentals</div>
+            <div><strong>Current Module:</strong> Variables to Conditionals</div>
+            <div><strong>Report Date:</strong> <span id="currentDate"></span></div>
+            <div><strong>Instructor:</strong> RillCod Technologies</div>
+            <div><strong>Duration:</strong> Termly</div>
+        </div>
+
+        <div class="grid-container">
+            <div>
+                <div class="section">
+                    <div class="section-title">COURSE PROGRESS</div>
+                    <ul class="progress-list">
+                        <li><strong>Variables & Data Types:</strong> integers, floats, strings, booleans</li>
+                        <li><strong>Basic I/O Operations:</strong> input() and print() functions</li>
+                        <li><strong>Operators:</strong> Arithmetic, Comparison, Logical</li>
+                        <li><strong>Conditionals:</strong> if/elif/else statements</li>
+                        <li><strong>Type Conversion:</strong> int(), float(), str() functions</li>
+                        <li><strong>Basic Debugging:</strong> Identifying syntax errors</li>
+                    </ul>
+                    <div style="font-style: italic; margin-top: 1mm;"><strong>Next Module:</strong> Loops (while/for) and Functions</div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">PERFORMANCE ASSESSMENT</div>
+                    <table class="assessment-table">
+                        <tr>
+                            <th>Assessment</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                        </tr>
+                        <tr>
+                            <td>Theory Test</td>
+                            <td id="theoryScoreDisplay">[XX]</td>
+                            <td id="theoryGradeDisplay">[A-F]</td>
+                        </tr>
+                        <tr>
+                            <td>Practical Test</td>
+                            <td id="practicalScoreDisplay">[XX]</td>
+                            <td id="practicalGradeDisplay">[A-F]</td>
+                        </tr>
+                        <tr>
+                            <td>Attendance</td>
+                            <td id="attendanceDisplay">[XX]%</td>
+                            <td id="attendanceGradeDisplay">[A-F]</td>
+                        </tr>
+                        <tr>
+                            <td>Participation</td>
+                            <td id="participationDisplay" colspan="2">[Rating]</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="total-performance">
+                        <div><strong>Overall Performance:</strong></div>
+                        <div class="performance-grade" id="overallGradeDisplay">[A-F]</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section">
+                    <div class="section-title">PERFORMANCE CHART</div>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">INSTRUCTOR'S EVALUATION</div>
+                    <div class="comments" id="instructorComments">
+                        [Student] has shown [progress] in understanding Python fundamentals...
+                    </div>
+                    <div style="margin-top: 2mm;">
+                        <div><strong>✅ Key Strengths:</strong></div>
+                        <div id="strengthsDisplay" style="margin-left: 2mm;">[Student strengths]</div>
+                    </div>
+                    <div style="margin-top: 2mm;">
+                        <div><strong>📈 Areas for Growth:</strong></div>
+                        <div id="growthDisplay" style="margin-left: 2mm;">[Improvement areas]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title" style="text-align: center;">CERTIFICATE OF COMPLETION</div>
+            <div class="certificate">
+                <p>This certifies that <strong id="certStudentName">[Student Name]</strong> has successfully completed the <em>Python Fundamentals</em> module covering variables through conditional statements at Rillcod Technologies.</p>
+                <div class="payment-info">
+                    NEXT TERM FEE PAYMENT IS ₦15,000 TO RILLCOD LTD.<br>
+                    BANK: PROVIDUS | ACCOUNT NUMBER: 7901178957
+                </div>
+                <div class="signature">
+                    <div>
+                        <div class="signature-line"></div>
+                        <p>Instructor's Signature</p>
+                    </div>
+                    <div>
+                        <div class="signature-line"></div>
+                        <p>Date</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            © 2025 Rillcod Technologies | All Rights Reserved | Report generated on <span id="footerDate"></span>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Set current date
+        const today = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = today.toLocaleDateString('en-US', options);
+        document.getElementById('currentDate').textContent = formattedDate;
+        document.getElementById('footerDate').textContent = formattedDate;
+        
+        // Initialize chart
+        let performanceChart;
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        
+        // Handle form submission
+        document.getElementById('scoreForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const studentName = document.getElementById('studentName').value;
+            const theoryScore = parseInt(document.getElementById('theoryScore').value);
+            const practicalScore = parseInt(document.getElementById('practicalScore').value);
+            const attendance = parseInt(document.getElementById('attendance').value);
+            const participation = document.getElementById('participation').value;
+            const strengths = document.getElementById('strengths').value;
+            const growth = document.getElementById('growth').value;
+            let comments = document.getElementById('comments').value;
+            
+            // Calculate grades
+            const theoryGrade = calculateGrade(theoryScore);
+            const practicalGrade = calculateGrade(practicalScore);
+            const attendanceGrade = calculateGrade(attendance);
+            const overallGrade = calculateGrade((theoryScore + practicalScore + attendance) / 3);
+            
+            // Replace placeholders with student name
+            comments = comments.replace(/\[Student\]/g, studentName)
+                             .replace(/\[they\]/g, studentName)
+                             .replace(/\[them\]/g, studentName)
+                             .replace(/\[their\]/g, studentName + "'s");
+            
+            // Update the report
+            document.getElementById('reportStudentName').textContent = studentName;
+            document.getElementById('certStudentName').textContent = studentName;
+            document.getElementById('theoryScoreDisplay').textContent = theoryScore;
+            document.getElementById('theoryGradeDisplay').textContent = theoryGrade;
+            document.getElementById('practicalScoreDisplay').textContent = practicalScore;
+            document.getElementById('practicalGradeDisplay').textContent = practicalGrade;
+            document.getElementById('attendanceDisplay').textContent = attendance + '%';
+            document.getElementById('attendanceGradeDisplay').textContent = attendanceGrade;
+            document.getElementById('overallGradeDisplay').textContent = overallGrade;
+            document.getElementById('participationDisplay').textContent = participation;
+            document.getElementById('instructorComments').textContent = comments;
+            document.getElementById('strengthsDisplay').textContent = strengths;
+            document.getElementById('growthDisplay').textContent = growth;
+            
+            // Update or create chart
+            updateChart(theoryScore, practicalScore, attendance);
+            
+            // Generate PDF after a short delay to allow chart to render
+            setTimeout(() => {
+                generatePDF();
+            }, 500);
+        });
+        
+        function calculateGrade(score) {
+            if (score >= 90) return 'A';
+            if (score >= 80) return 'B';
+            if (score >= 70) return 'C';
+            if (score >= 60) return 'D';
+            return 'F';
+        }
+        
+        function updateChart(theoryScore, practicalScore, attendance) {
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+            
+            performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Theory Test', 'Practical Test', 'Attendance'],
+                    datasets: [{
+                        label: 'Score (%)',
+                        data: [theoryScore, practicalScore, attendance],
+                        backgroundColor: [
+                            'rgba(0, 0, 128, 0.7)',
+                            'rgba(128, 0, 0, 0.7)',
+                            'rgba(0, 128, 0, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 0, 128, 1)',
+                            'rgba(128, 0, 0, 1)',
+                            'rgba(0, 128, 0, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Percentage Score'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Performance Metrics',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function generatePDF() {
+            const reportElement = document.getElementById('reportContent');
+            
+            // Use html2canvas with improved options for better PDF rendering
+            html2canvas(reportElement, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                windowWidth: reportElement.scrollWidth,
+                windowHeight: reportElement.scrollHeight,
+                scrollX: 0,
+                scrollY: 0,
+                backgroundColor: '#FFFFFF'
+            }).then(canvas => {
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgData = canvas.toDataURL('image/png', 1.0);
+                
+                // Calculate image dimensions to fit the page
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = pageWidth - 20; // Add margins
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // Center the image on the page
+                const x = (pageWidth - imgWidth) / 2;
+                const y = 5; // Reduced top margin
+                
+                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+                
+                // Save the PDF
+                const studentName = document.getElementById('studentName').value.replace(/\s+/g, '_');
+                pdf.save(`RillCod_Progress_Report_${studentName}.pdf`);
+            });
+        }
+    </script>
+</body>
+</html>
